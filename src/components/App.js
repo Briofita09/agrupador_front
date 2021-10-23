@@ -1,12 +1,15 @@
 import "../App.css";
 
 import Header from "./Header";
-import mapa from "./Map";
+import Mapa from "./Map";
+import AddGroup from "./AddGroup";
 
 function App() {
   return (
     <div className="App">
       <Header />
+      <Mapa />
+      <AddGroup />
     </div>
   );
 }

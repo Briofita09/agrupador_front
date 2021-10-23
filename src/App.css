@@ -3,6 +3,12 @@
 }
 
 .mapa {
-  width: 640px;
-  height: 480px;
+  display: flex;
+  justify-content: left;
+  margin-left: 200px;
+  margin-top: 50px;
+}
+
+.markerLabel {
+  margin-bottom: 40px;
 }
