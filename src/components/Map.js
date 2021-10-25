@@ -2,16 +2,9 @@ import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import api from "./apis/api";
 
-function Mapa() {
-  const [selectedGroupState, seteSelectedGroupState] = useState([
-    {
-      id: 0,
-      name: "",
-      description: "",
-      link: "",
-    },
-  ]);
+const geolib = require("geolib");
 
+function Mapa() {
   const [groupsState, setGroupsState] = useState([
     {
       id: 0,
@@ -21,51 +14,65 @@ function Mapa() {
     },
   ]);
 
+  const [closerGroups, setCloserGroups] = useState([]);
+
+  const [myLocationState, setMyLocationState] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+
   const containerStyle = {
     width: "800px",
     height: "600px",
   };
 
   const center = {
-    lat: -26,
-    lng: -50,
+    lat: myLocationState.latitude,
+    lng: myLocationState.longitude,
   };
 
-  const id = selectedGroupState.id;
-
   useEffect(() => {
+    const abortCont = new AbortController();
+
     async function fetchGroups() {
       try {
-        const response = await api.get("/grupos");
+        const response = await api.get("/grupos", { signal: abortCont.signal });
         setGroupsState(response.data);
       } catch (err) {
         console.log(err);
       }
     }
     fetchGroups();
-  }, []);
-  async function fetchGroup() {
-    try {
-      const response = await api.get(`/grupos/${id}/details`);
-      seteSelectedGroupState(response.data);
-    } catch (err) {
-      console.log(err);
+
+    function getCloserGroups() {
+      let closer = [];
+      groupsState.map((group) => {
+        if (
+          geolib.getDistance(
+            { latitude: group.lat, longitude: group.lng },
+            { latitude: center.lat, longitude: center.lng }
+          ) > 1000
+        ) {
+          closer.push(group);
+        }
+      });
+      setCloserGroups(closer);
     }
+    getCloserGroups();
+    return () => abortCont.abort();
+  }, [center.lat, center.lng]);
+
+  function succes(pos) {
+    let crd = pos.coords;
+    setMyLocationState(crd);
   }
 
-  function createMarker() {
-    groupsState.map((group) => {
-      return (
-        <Marker
-          onClick={fetchGroup}
-          position={{ position: { lat: group.lat, lng: group.lng } }}
-          options={{ label: { text: group.name, className: "markerLabel" } }}
-        />
-      );
-    });
+  function error(err) {
+    console.log(err);
   }
-
-  console.log(Marker);
+  navigator.geolocation.getCurrentPosition(succes, error);
+  //console.log(groupsState);
+  console.log(closerGroups);
   return (
     <div className="mapa">
       <div>
@@ -73,32 +80,16 @@ function Mapa() {
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={2}
+            zoom={18}
           >
-            {createMarker}
+            <Marker
+              position={center}
+              options={{
+                label: { text: "Minha Localização", className: "markerLabel" },
+              }}
+            />
           </GoogleMap>
         </LoadScript>
-      </div>
-      <div>
-        <h3>Grupo Selecionado</h3>
-        {selectedGroupState.map((grupo) => {
-          return (
-            <div>
-              <div>
-                <h4>Nome do grupo:</h4>
-                <p>{grupo.name}</p>
-              </div>
-              <div>
-                <h4>Descrição:</h4>
-                <p>{grupo.description}</p>
-              </div>
-              <div>
-                <h4>Link para entrar no grupo:</h4>
-                <p>{grupo.link}</p>
-              </div>
-            </div>
-          );
-        })}
       </div>
     </div>
   );

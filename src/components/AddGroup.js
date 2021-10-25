@@ -6,8 +6,6 @@ function AddGroup() {
     name: "",
     description: "",
     link: "",
-    lat: 0,
-    lng: 0,
   });
 
   function handleChange(event) {
@@ -23,7 +21,6 @@ function AddGroup() {
       console.log(err);
     }
   }
-  console.log(formState);
   return (
     <div>
       <form onSubmit={handleSubmit}>
