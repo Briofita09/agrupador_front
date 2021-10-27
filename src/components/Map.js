@@ -9,6 +9,10 @@ const geolib = require("geolib");
 function Mapa() {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const [idProps, setIdProps] = useState({
+    id: 0,
+  });
+
   const [groupsState, setGroupsState] = useState([
     {
       id: 0,
@@ -96,13 +100,18 @@ function Mapa() {
               ) {
                 return (
                   <tr className="row">
-                    <td className="collum">
-                      <button onClick={() => setIsModalVisible(true)}>
+                    <td className="collum" key={group.id}>
+                      <button
+                        onClick={() => {
+                          setIsModalVisible(true);
+                          setIdProps(group.id);
+                        }}
+                      >
                         {group.name}
                       </button>
                       {isModalVisible ? (
                         <Modal onClose={() => setIsModalVisible(false)}>
-                          {group.id}
+                          {idProps}
                         </Modal>
                       ) : null}
                     </td>
