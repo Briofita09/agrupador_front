@@ -6,7 +6,19 @@ function AddGroup() {
     name: "",
     description: "",
     link: "",
+    lat: 0,
+    lng: 0,
   });
+
+  function succes(pos) {
+    let crd = pos.coords;
+    setFormState({ lat: crd.latitude, lng: crd.longitude });
+  }
+
+  function error(err) {
+    console.log(err);
+  }
+  navigator.geolocation.getCurrentPosition(succes, error);
 
   function handleChange(event) {
     setFormState({ ...formState, [event.target.name]: event.target.value });
@@ -16,59 +28,61 @@ function AddGroup() {
     event.preventDefault();
     try {
       const response = await api.post("/createGrupo/", formState);
-      console.log(response.data);
+      console.log(response.data.message);
+      alert(response.data.message);
+      setFormState({
+        name: "",
+        description: "",
+        link: "",
+      });
     } catch (err) {
-      console.log(err);
+      alert(err.response.data.message);
     }
   }
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Nome do grupo:</label>
-        <input
-          id="name"
-          value={formState.name}
-          type="text"
-          onChange={handleChange}
-          name="name"
-        />
+      <h3>Adicionar Grupo</h3>
+      <form onSubmit={handleSubmit} className="formContainer">
+        <div className="formItem">
+          <label htmlFor="name">Nome do grupo:</label>
+          <input
+            required
+            id="name"
+            value={formState.name}
+            type="text"
+            onChange={handleChange}
+            name="name"
+            placeholder="maximo de 40 caracteres"
+          />
+        </div>
 
-        <label htmlFor="description">Descrição do grupo:</label>
-        <input
-          id="description"
-          value={formState.description}
-          type="text"
-          onChange={handleChange}
-          name="description"
-        />
+        <div className="formItem">
+          <label htmlFor="link">Link do grupo:</label>
+          <input
+            required
+            id="link"
+            value={formState.link}
+            type="text"
+            onChange={handleChange}
+            name="link"
+          />
+        </div>
 
-        <label htmlFor="link">Link do grupo:</label>
-        <input
-          id="link"
-          value={formState.link}
-          type="text"
-          onChange={handleChange}
-          name="link"
-        />
-
-        <label htmlFor="lat">Latiude:</label>
-        <input
-          id="lat"
-          value={formState.lat}
-          type="number"
-          onChange={handleChange}
-          name="lat"
-        />
-
-        <label htmlFor="name">Longitude:</label>
-        <input
-          id="lng"
-          value={formState.lng}
-          type="number"
-          onChange={handleChange}
-          name="lng"
-        />
-        <button type="submit">Publicar</button>
+        <div className="formItem">
+          <label htmlFor="description">Descrição do grupo:</label>
+          <textarea
+            required
+            id="description"
+            value={formState.description}
+            type="text"
+            onChange={handleChange}
+            name="description"
+            rows="1"
+          />
+        </div>
+        <button type="submit" className="formItem">
+          Publicar
+        </button>
       </form>
     </div>
   );

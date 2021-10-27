@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import Modal from "./Modal";
+
 import api from "./apis/api";
 
 const geolib = require("geolib");
 
 function Mapa() {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   const [groupsState, setGroupsState] = useState([
     {
       id: 0,
       name: "",
       lat: 0,
       lng: 0,
+      description: "",
+      link: "",
     },
   ]);
 
-  const [closerGroups, setCloserGroups] = useState([]);
-
   const [myLocationState, setMyLocationState] = useState({
-    latitude: 0,
-    longitude: 0,
+    latitude: "",
+    longitude: "",
   });
 
   const containerStyle = {
-    width: "800px",
-    height: "600px",
+    width: "600px",
+    height: "400px",
+    borderRadius: "30%",
   };
 
   const center = {
@@ -32,35 +37,16 @@ function Mapa() {
   };
 
   useEffect(() => {
-    const abortCont = new AbortController();
-
     async function fetchGroups() {
       try {
-        const response = await api.get("/grupos", { signal: abortCont.signal });
+        const response = await api.get("/grupos");
         setGroupsState(response.data);
       } catch (err) {
-        console.log(err);
+        alert(err);
       }
     }
     fetchGroups();
-
-    function getCloserGroups() {
-      let closer = [];
-      groupsState.map((group) => {
-        if (
-          geolib.getDistance(
-            { latitude: group.lat, longitude: group.lng },
-            { latitude: center.lat, longitude: center.lng }
-          ) > 1000
-        ) {
-          closer.push(group);
-        }
-      });
-      setCloserGroups(closer);
-    }
-    getCloserGroups();
-    return () => abortCont.abort();
-  }, [center.lat, center.lng]);
+  }, []);
 
   function succes(pos) {
     let crd = pos.coords;
@@ -71,8 +57,7 @@ function Mapa() {
     console.log(err);
   }
   navigator.geolocation.getCurrentPosition(succes, error);
-  //console.log(groupsState);
-  console.log(closerGroups);
+
   return (
     <div className="mapa">
       <div>
@@ -80,7 +65,7 @@ function Mapa() {
           <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={18}
+            zoom={15}
           >
             <Marker
               position={center}
@@ -91,6 +76,43 @@ function Mapa() {
           </GoogleMap>
         </LoadScript>
       </div>
+      <section>
+        <div>
+          <h3>Grupos proximos a você:</h3>
+        </div>
+        <table>
+          <thead>
+            <tr className="row">
+              <th className="collum">Nome</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groupsState.map((group) => {
+              if (
+                geolib.getDistance(
+                  { latitude: center.lat, longitude: center.lng },
+                  { latitude: group.lat, longitude: group.lng }
+                ) < 1000
+              ) {
+                return (
+                  <tr className="row">
+                    <td className="collum">
+                      <button onClick={() => setIsModalVisible(true)}>
+                        {group.name}
+                      </button>
+                      {isModalVisible ? (
+                        <Modal onClose={() => setIsModalVisible(false)}>
+                          {group.id}
+                        </Modal>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              }
+            })}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

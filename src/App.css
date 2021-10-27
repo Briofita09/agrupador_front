@@ -1,14 +1,100 @@
+body {
+  background: #444;
+}
 .App {
   text-align: center;
 }
 
+h3 {
+  font-weight: bold;
+  align-items: center;
+}
+
 .mapa {
   display: flex;
-  justify-content: left;
-  margin-left: 200px;
+  justify-content: space-around;
+  margin-left: 100px;
   margin-top: 50px;
+  margin-right: 100px;
 }
 
 .markerLabel {
   margin-bottom: 40px;
+  font-weight: bold;
+}
+
+.formContainer {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 200px;
+  margin-right: 200px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  align-items: flex-start;
+}
+
+.formItem {
+  margin-right: 60px;
+}
+
+.collum {
+  padding-right: 90px;
+}
+
+.link {
+  text-decoration: none;
+  color: black;
+}
+
+.modal {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContainer {
+  background-color: white;
+  color: black;
+  width: 50%;
+  height: 50%;
+  border-radius: 20px;
+}
+
+.close {
+  background-color: transparent;
+  border: none;
+}
+
+.modalContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
+td,
+th {
+  padding-left: 100px;
+}
+
+tr {
+  padding: auto;
+}
+
+label {
+  padding-right: 30px;
+}
+
+button {
+  border: 1px solid black;
+  border-radius: 30px;
+  text-align: center;
+  box-shadow: 10px 10px 5px black;
 }
